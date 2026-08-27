@@ -1,0 +1,1 @@
+enum MatchStatus {onGoing, finished, waiting}

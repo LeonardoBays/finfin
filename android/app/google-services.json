@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1009980354758",
+    "project_id": "fin-pos-leo-bays",
+    "storage_bucket": "fin-pos-leo-bays.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1009980354758:android:0c6a636ea264ca2328a7c7",
+        "android_client_info": {
+          "package_name": "com.example.fin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDHW7DSfdLUBNlCQ2wPYViQWqu3C4Su8pI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

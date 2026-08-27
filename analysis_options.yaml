@@ -1,0 +1,74 @@
+# This file configures the analyzer, which statically analyzes Dart code to
+# check for errors, warnings, and lints.
+#
+# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
+# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
+# invoked from the command line by running `flutter analyze`.
+
+# The following line activates a set of recommended lints for Flutter apps,
+# packages, and plugins designed to encourage good coding practices.
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  # The lint rules applied to this project can be customized in the
+  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
+  # included above or to enable additional rules. A list of all available lints
+  # and their documentation is published at https://dart.dev/lints.
+  #
+  # Instead of disabling a lint rule for the entire project in the
+  # section below, it can also be suppressed for a single line of code
+  # or a specific dart file by using the `// ignore: name_of_lint` and
+  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
+  # producing the lint.
+  rules:
+    # Tipagem
+    always_declare_return_types: true
+    type_annotate_public_apis: true
+    avoid_types_on_closure_parameters: true
+
+    # Const e final
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    prefer_final_fields: true
+    prefer_final_locals: true
+    unnecessary_const: true
+
+    # Código limpo
+    avoid_print: true
+    avoid_empty_else: true
+    avoid_redundant_argument_values: true
+    avoid_unnecessary_containers: true
+    unnecessary_lambdas: true
+    unnecessary_parenthesis: true
+
+    # Collections
+    prefer_collection_literals: true
+    prefer_spread_collections: true
+    prefer_if_elements_to_conditional_expressions: true
+    prefer_for_elements_to_map_fromIterable: true
+
+    # Strings
+    prefer_interpolation_to_compose_strings: true
+    unnecessary_string_interpolations: true
+
+    # Null safety
+    unnecessary_null_checks: true
+    unnecessary_nullable_for_final_variable_declarations: true
+
+    # Imports
+    directives_ordering: true
+    sort_constructors_first: true
+#    depend_on_referenced_packages: true
+
+    # Flutter
+    use_key_in_widget_constructors: true
+    sized_box_for_whitespace: true
+    use_super_parameters: true
+
+    # Boas práticas
+    cascade_invocations: true
+    noop_primitive_operations: true
+    omit_local_variable_types: true
+
+# Additional information about this file can be found at
+# https://dart.dev/guides/language/analysis-options
