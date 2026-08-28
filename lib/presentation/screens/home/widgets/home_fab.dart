@@ -1,4 +1,5 @@
 import 'package:fin/config/routes.dart';
+import 'package:fin/core/constants/custom_colors.dart';
 import 'package:flutter/material.dart';
 
 import '../../period/period_screen.dart';
@@ -14,13 +15,18 @@ class HomeFab extends StatelessWidget {
         FloatingActionButton(
           heroTag: 'transaction',
           onPressed: () => _createPeriod(context),
-          child: const Icon(Icons.calendar_month_outlined),
+          backgroundColor: CustomColors.azul,
+          child: const Icon(Icons.calendar_month_outlined, color: Colors.white),
         ),
         const SizedBox(height: 16),
         FloatingActionButton(
           heroTag: 'period',
           onPressed: () => _createTransaction(context),
-          child: const Icon(Icons.monetization_on_outlined),
+          backgroundColor: CustomColors.azul,
+          child: const Icon(
+            Icons.monetization_on_outlined,
+            color: Colors.white,
+          ),
         ),
       ],
     );

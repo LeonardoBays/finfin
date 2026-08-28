@@ -4,6 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../../../componenets/widgets/custom_elevated_button.dart';
+import '../../../componenets/widgets/custom_text_field.dart';
+import '../../../componenets/widgets/cutom_date_picker.dart';
+import '../../../componenets/widgets/info_content.dart';
+import '../../../componenets/widgets/intervalo_container.dart';
+import '../../../componenets/widgets/label_for_field.dart';
+
 class PeriodHome extends StatefulWidget {
   const PeriodHome({super.key, required this.state});
 
@@ -16,20 +23,22 @@ class PeriodHome extends StatefulWidget {
 class _PeriodHomeState extends State<PeriodHome> {
   late final TextEditingController _nameController;
   late final TextEditingController _amountController;
-  late final TextEditingController _startController;
-  late final TextEditingController _endController;
 
-  DateTime? _selectedStart;
-  DateTime? _selectedEnd;
+  late DateTime _selectedStart;
+  late DateTime _selectedEnd;
   int _periodTypeId = 0;
 
   @override
   void initState() {
     super.initState();
+
+    final dtNow = DateTime.now();
+    _selectedStart = dtNow;
+
+    _selectedEnd = dtNow.add(const Duration(days: 1));
+
     _nameController = TextEditingController();
     _amountController = TextEditingController();
-    _startController = TextEditingController();
-    _endController = TextEditingController();
     _syncFromState(widget.state.form);
   }
 
@@ -67,12 +76,10 @@ class _PeriodHomeState extends State<PeriodHome> {
 
     if (nextStart != null && _selectedStart != nextStart) {
       _selectedStart = nextStart;
-      _startController.text = DateFormat('dd/MM/yyyy').format(nextStart);
     }
 
     if (nextEnd != null && _selectedEnd != nextEnd) {
       _selectedEnd = nextEnd;
-      _endController.text = DateFormat('dd/MM/yyyy').format(nextEnd);
     }
 
     _periodTypeId = nextType;
@@ -82,40 +89,7 @@ class _PeriodHomeState extends State<PeriodHome> {
   void dispose() {
     _nameController.dispose();
     _amountController.dispose();
-    _startController.dispose();
-    _endController.dispose();
     super.dispose();
-  }
-
-  Future<void> _pickDate(BuildContext context, {required bool isStart}) async {
-    final now = DateTime.now();
-    final initialDate = isStart
-        ? (_selectedStart ?? now.add(const Duration(days: 30)))
-        : (_selectedEnd ?? _selectedStart ?? now.add(const Duration(days: 60)));
-
-    final pickerMinDate = now.subtract(const Duration(days: 30));
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: initialDate,
-      firstDate: pickerMinDate,
-      lastDate: DateTime(2100),
-    );
-
-    if (picked == null) return;
-
-    setState(() {
-      if (isStart) {
-        _selectedStart = picked;
-        _startController.text = DateFormat('dd/MM/yyyy').format(picked);
-        if (_selectedEnd == null || _selectedEnd!.isBefore(picked)) {
-          _selectedEnd = picked.add(const Duration(days: 30));
-          _endController.text = DateFormat('dd/MM/yyyy').format(_selectedEnd!);
-        }
-      } else {
-        _selectedEnd = picked;
-        _endController.text = DateFormat('dd/MM/yyyy').format(picked);
-      }
-    });
   }
 
   String _formatCurrency(double value) {
@@ -139,7 +113,7 @@ class _PeriodHomeState extends State<PeriodHome> {
     final endsAt = _selectedEnd;
     final amount = _parseCurrency(_amountController.text);
 
-    if (name.isEmpty || startsAt == null || endsAt == null || amount <= 0) {
+    if (name.isEmpty || amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Preencha todos os campos obrigatórios.')),
       );
@@ -165,225 +139,116 @@ class _PeriodHomeState extends State<PeriodHome> {
         ? (widget.state as PeriodError).message
         : null;
 
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (error != null)
-              Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFECEC),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  error,
-                  style: const TextStyle(color: Color(0xFFB00020)),
-                ),
+    return SingleChildScrollView(
+      padding: MediaQuery.of(
+        context,
+      ).padding.add(const EdgeInsets.fromLTRB(16, 12, 16, 28)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (error != null) InfoContent.error(label: error),
+          const LabelForField(label: 'Nome do intervalo'),
+          CustomTextField(
+            controller: _nameController,
+            hint: 'Ex.: Mercado Julho',
+          ),
+          const SizedBox(height: 18),
+          const LabelForField(label: 'Tipo de intervalo'),
+          Row(
+            spacing: 12.0,
+            children: [
+              IntervaloContainer(
+                icon: Icons.calendar_month_outlined,
+                label: 'Dias',
+                onPressed: () {},
+                enable: true,
+                selected: true,
               ),
-            const _FieldLabel(label: 'Nome do intervalo'),
-            TextFormField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                hintText: 'Ex.: Mercado Julho',
-                border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 14,
-                ),
-              ),
-            ),
-            const SizedBox(height: 18),
-            const _FieldLabel(label: 'Tipo de intervalo'),
-            Row(
-              children: [
-                Expanded(
-                  child: ChoiceChip(
-                    label: const Text('Dias'),
-                    selected: _periodTypeId == 0,
-                    onSelected: (_) => setState(() => _periodTypeId = 0),
-                    selectedColor: const Color(0xFF2051C9),
-                    labelStyle: TextStyle(
-                      color: _periodTypeId == 0
-                          ? Colors.white
-                          : const Color(0xFF2051C9),
-                      fontWeight: FontWeight.w600,
-                    ),
-                    avatar: const Icon(Icons.calendar_today, size: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ChoiceChip(
-                    label: const Text('Semanas'),
-                    selected: false,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ChoiceChip(
-                    label: const Text('Meses'),
-                    selected: false,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 18),
-            const _FieldLabel(label: 'Data de início'),
-            TextFormField(
-              controller: _startController,
-              readOnly: true,
-              onTap: () => _pickDate(context, isStart: true),
-              decoration: const InputDecoration(
-                hintText: '25/07/2026',
-                border: OutlineInputBorder(),
-                suffixIcon: Icon(Icons.calendar_today_outlined),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 14,
-                ),
-              ),
-            ),
-            const SizedBox(height: 18),
-            const _FieldLabel(label: 'Data de término'),
-            TextFormField(
-              controller: _endController,
-              readOnly: true,
-              onTap: () => _pickDate(context, isStart: false),
-              decoration: const InputDecoration(
-                hintText: '31/07/2026',
-                border: OutlineInputBorder(),
-                suffixIcon: Icon(Icons.calendar_today_outlined),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 14,
-                ),
-              ),
-            ),
-            const SizedBox(height: 18),
-            const _FieldLabel(label: 'Valor planejado'),
-            TextFormField(
-              controller: _amountController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              onChanged: (value) {
-                final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
-                if (digits.isEmpty) {
-                  _amountController.value = const TextEditingValue(
-                    selection: TextSelection.collapsed(offset: 0),
-                  );
-                  return;
-                }
-
-                final cents = int.parse(digits);
-                final formatted = NumberFormat.currency(
-                  locale: 'pt_BR',
-                  symbol: 'R\$',
-                  decimalDigits: 2,
-                ).format(cents / 100);
-
-                if (_amountController.text != formatted) {
-                  _amountController.value = TextEditingValue(
-                    text: formatted,
-                    selection: TextSelection.collapsed(
-                      offset: formatted.length,
-                    ),
-                  );
-                }
-              },
-              decoration: const InputDecoration(
-                hintText: 'R\$ 1.000,00',
-                border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 14,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEAF4FF),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.info_outline, color: Color(0xFF2051C9), size: 18),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Este é o valor total que você pode gastar neste período.',
-                      style: TextStyle(color: Color(0xFF2051C9), fontSize: 12),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              height: 52,
-              child: ElevatedButton(
-                onPressed: isSubmitting ? null : () => _submit(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2051C9),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: isSubmitting
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Text(
-                        'Salvar intervalo',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-              ),
-            ),
-          ],
-        ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          const LabelForField(label: 'Data de início'),
+          CutomDatePicker(
+            value: DateFormat('dd/MM/yyyy').format(_selectedStart),
+            enable: true,
+            initialDate: _selectedStart,
+            firstDate: DateTime(2026),
+            lastDate: _selectedEnd.subtract(const Duration(days: 1)),
+            onPressed: _onStartDateChange,
+          ),
+          const SizedBox(height: 18),
+          const LabelForField(label: 'Data de término'),
+          CutomDatePicker(
+            value: DateFormat('dd/MM/yyyy').format(_selectedEnd),
+            enable: true,
+            initialDate: _selectedEnd,
+            firstDate: _selectedStart.add(const Duration(days: 1)),
+            lastDate: DateTime(2100),
+            onPressed: _onEndDateChange,
+          ),
+          const SizedBox(height: 18),
+          const LabelForField(label: 'Valor planejado'),
+          CustomTextField(
+            controller: _amountController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            hint: 'R\$ 1.000,00',
+            onChanged: _onAmountChanged,
+          ),
+          const SizedBox(height: 12),
+          const InfoContent.warning(
+            label:
+                'Este é o valor total que você planeja gastar neste período.',
+          ),
+          const SizedBox(height: 24),
+          CustomElevatedButton(
+            enable: !isSubmitting,
+            isLoading: isSubmitting,
+            onPressed: () => _submit(context),
+            label: 'Salvar intervalo',
+          ),
+        ],
       ),
     );
   }
-}
 
-class _FieldLabel extends StatelessWidget {
-  const _FieldLabel({required this.label});
+  void _onAmountChanged(String value) {
+    final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.isEmpty) {
+      _amountController.value = const TextEditingValue(
+        selection: TextSelection.collapsed(offset: 0),
+      );
+      return;
+    }
 
-  final String label;
+    final cents = int.parse(digits);
+    final formatted = NumberFormat.currency(
+      locale: 'pt_BR',
+      symbol: 'R\$',
+      decimalDigits: 2,
+    ).format(cents / 100);
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: Color(0xFF1B1B1B),
-        ),
-      ),
-    );
+    if (_amountController.text != formatted) {
+      _amountController.value = TextEditingValue(
+        text: formatted,
+        selection: TextSelection.collapsed(offset: formatted.length),
+      );
+    }
+  }
+
+  void _onStartDateChange(DateTime? date) {
+    if (date != null) {
+      setState(() {
+        _selectedStart = date;
+      });
+    }
+  }
+
+  void _onEndDateChange(DateTime? date) {
+    if (date != null) {
+      setState(() {
+        _selectedEnd = date;
+      });
+    }
   }
 }

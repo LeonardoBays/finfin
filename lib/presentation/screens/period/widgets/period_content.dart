@@ -2,6 +2,7 @@ import 'package:fin/presentation/screens/period/widgets/period_home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../componenets/widgets/delete_button.dart';
 import '../bloc/period_bloc.dart';
 
 class PeriodContent extends StatelessWidget {
@@ -21,21 +22,20 @@ class PeriodContent extends StatelessWidget {
 
           return Scaffold(
             appBar: AppBar(
-              backgroundColor: Colors.white,
-              elevation: 0,
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Color(0xFF2051C9)),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
               title: Text(
                 hasId ? 'Editar intervalo' : 'Novo intervalo',
-                style: const TextStyle(
-                  color: Color(0xFF1B1B1B),
-                  fontWeight: FontWeight.w600,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
-              centerTitle: false,
               actions: [
+                DeleteButton(
+                  enable: hasId,
+                  isVisible: hasId,
+                  onPressed: () {
+                    final id = state.form!.id;
+                    if (id.isEmpty) return;
+                    context.read<PeriodBloc>().add(PeriodDeleted(id));
+                  },
+                ),
                 if (hasId)
                   IconButton(
                     icon: const Icon(

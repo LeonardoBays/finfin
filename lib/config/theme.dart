@@ -15,17 +15,12 @@ ThemeData theme() {
     brightness: Brightness.light,
     colorScheme: colorScheme,
 
-    // textTheme: textTheme,
     scaffoldBackgroundColor: Colors.white,
 
     appBarTheme: AppBarTheme(
       elevation: 0,
       backgroundColor: colorScheme.primary,
       foregroundColor: colorScheme.onPrimary,
-      // titleTextStyle: textTheme.titleLarge?.copyWith(
-      //   color: colorScheme.onPrimary,
-      //   fontSize: 20,
-      // ),
       iconTheme: IconThemeData(color: colorScheme.onPrimary),
     ),
 

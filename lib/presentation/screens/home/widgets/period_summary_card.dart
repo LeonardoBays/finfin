@@ -64,13 +64,11 @@ class PeriodSummaryCard extends StatelessWidget {
                                 Flexible(
                                   child: Text(
                                     summary.name,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleLarge
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                          color: const Color(0xFF1B1B1B),
-                                        ),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF1B1B1B),
+                                      fontSize: 20.0,
+                                    ),
                                   ),
                                 ),
                                 Container(
@@ -87,7 +85,7 @@ class PeriodSummaryCard extends StatelessWidget {
                                     style: const TextStyle(
                                       color: CustomColors.verde,
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 14,
+                                      fontSize: 12,
                                     ),
                                   ),
                                 ),
