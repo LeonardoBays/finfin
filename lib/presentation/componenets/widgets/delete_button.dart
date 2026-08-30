@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/constants/custom_colors.dart';
-
 class DeleteButton extends StatelessWidget {
   const DeleteButton({
     super.key,
@@ -19,7 +17,7 @@ class DeleteButton extends StatelessWidget {
     return Visibility(
       visible: isVisible,
       child: IconButton(
-        icon: const Icon(Icons.delete_outline, color: CustomColors.azul),
+        icon: const Icon(Icons.delete_outline, color: Colors.white),
         onPressed: enable && isVisible ? onPressed : null,
       ),
     );

@@ -20,6 +20,7 @@ import 'external/plugins/http_client_impl.dart';
 import 'external/plugins/uuid_generator_impl.dart';
 import 'presentation/screens/home/bloc/home_bloc.dart';
 import 'presentation/screens/period/bloc/period_bloc.dart';
+import 'presentation/screens/transaction/bloc/transaction_bloc.dart';
 
 final getIt = GetIt.instance;
 
@@ -72,6 +73,13 @@ final class InjectorImpl extends Injector {
       )
       ..registerFactory<HomeBloc>(
         () => HomeBloc(
+          getIt.get<TransactionRepository>(),
+          getIt.get<PeriodSummaryRepository>(),
+          getIt.get<UserController>(),
+        ),
+      )
+      ..registerFactory<TransactionBloc>(
+        () => TransactionBloc(
           getIt.get<TransactionRepository>(),
           getIt.get<PeriodSummaryRepository>(),
           getIt.get<UserController>(),

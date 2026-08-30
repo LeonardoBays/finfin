@@ -5,12 +5,14 @@ import '../presentation/componenets/animation/modal_page_route.dart';
 import '../presentation/screens/authentication/authentication_screen.dart';
 import '../presentation/screens/authentication/bloc/authentication_bloc.dart';
 import '../presentation/screens/period/period_screen.dart';
+import '../presentation/screens/transaction/transaction_screen.dart';
 
 enum NavigationFlow { simple, modalBottomUp }
 
 enum AppRoutes {
   root('/', NavigationFlow.simple),
-  period('/period', NavigationFlow.modalBottomUp);
+  period('/period', NavigationFlow.modalBottomUp),
+  transactions('/transactions', NavigationFlow.modalBottomUp);
 
   const AppRoutes(this.route, this.flow);
 
@@ -35,6 +37,9 @@ class Routes {
       ),
       AppRoutes.period => PeriodScreen(
         arguments: settings.arguments as PeriodArguments,
+      ),
+      AppRoutes.transactions => TransactionScreen(
+        arguments: settings.arguments as TransactionArguments,
       ),
     };
 

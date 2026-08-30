@@ -23,7 +23,7 @@ class HomeExpandedAppBar extends StatelessWidget {
                 spacing: 2.0,
                 children: [
                   HomeSaldoLabel(),
-                  HomeBalanceValue(balance: '1.248,53'),
+                  HomeBalanceValue(),
                   HomeBalanceBtn(),
                 ],
               ),

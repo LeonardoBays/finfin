@@ -49,9 +49,13 @@ class PeriodSummaryRemoteRepository implements PeriodSummaryRepository {
       final remaining = amount - totalSpent;
       final percentage = amount <= 0
           ? 0.0
-          : (totalSpent / amount).clamp(0.0, 1.0);
+          : ((totalSpent / amount) * 100).clamp(0.0, 100.0);
 
-      final daysLeft = endsAt.difference(DateTime.now()).inDays;
+      final enda = DateTime(endsAt.year, endsAt.month, endsAt.day);
+      final dtNow = DateTime.now();
+      final dtnowa = DateTime(dtNow.year, dtNow.month, dtNow.day);
+
+      final daysLeft = enda.difference(dtnowa).inDays;
 
       summaries.add(
         PeriodSummaryModel(

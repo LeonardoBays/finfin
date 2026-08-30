@@ -1,10 +1,13 @@
 import 'package:fin/core/constants/custom_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../config/routes.dart';
 import '../../../../data/models/helpers/home_period_summary.dart';
+import '../../../../domain/models/period_spending_analysis.dart';
 import '../../period/period_screen.dart';
+import '../bloc/home_bloc.dart';
 
 class PeriodSummaryCard extends StatelessWidget {
   const PeriodSummaryCard({super.key, required this.summary});
@@ -16,8 +19,10 @@ class PeriodSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateRange =
-        '${DateFormat('dd/MM/yyyy').format(summary.startsAt)} a ${DateFormat('dd/MM/yyyy').format(summary.endsAt)} • ${summary.periodTypeLabel}';
-    final percentage = summary.progress.clamp(0.0, 1.0);
+        '${DateFormat('dd/MM/yyyy').format(summary.startsAt)} a ${DateFormat('dd/MM/yyyy').format(summary.endsAt)}';
+    final percentage = summary.progress.clamp(0.0, 100.0);
+    final barProgress = (percentage / 100).clamp(0.0, 1.0);
+    final statusColor = _statusColor(summary.analysis?.status);
 
     final currency = NumberFormat.currency(
       locale: 'pt_BR',
@@ -51,7 +56,7 @@ class PeriodSummaryCard extends StatelessWidget {
                 borderRadius: _borderRadius,
                 child: Row(
                   children: [
-                    Container(width: 6.0, color: CustomColors.verde),
+                    Container(width: 6.0, color: statusColor),
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
@@ -77,13 +82,13 @@ class PeriodSummaryCard extends StatelessWidget {
                                     vertical: 6,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: CustomColors.verdeClaro,
+                                    color: statusColor.withAlpha(26),
                                     borderRadius: BorderRadius.circular(8.0),
                                   ),
                                   child: Text(
                                     'Faltam $labelDays',
-                                    style: const TextStyle(
-                                      color: CustomColors.verde,
+                                    style: TextStyle(
+                                      color: statusColor,
                                       fontWeight: FontWeight.w700,
                                       fontSize: 12,
                                     ),
@@ -92,13 +97,41 @@ class PeriodSummaryCard extends StatelessWidget {
                               ],
                             ),
                             const SizedBox(height: 6),
-                            Text(
-                              dateRange,
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(
-                                    color: CustomColors.cinza2,
-                                    fontWeight: .w600,
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    dateRange,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: CustomColors.cinza2,
+                                          fontWeight: .w600,
+                                        ),
                                   ),
+                                ),
+                                // if (summary.analysis != null)
+                                //   Container(
+                                //     margin: const EdgeInsets.only(left: 8),
+                                //     padding: const EdgeInsets.symmetric(
+                                //       horizontal: 8,
+                                //       vertical: 4,
+                                //     ),
+                                //     decoration: BoxDecoration(
+                                //       color: statusColor.withAlpha(26),
+                                //       borderRadius: BorderRadius.circular(8),
+                                //     ),
+                                //     child: Text(
+                                //       statusLabel,
+                                //       style: TextStyle(
+                                //         color: statusColor,
+                                //         fontSize: 11,
+                                //         fontWeight: FontWeight.w700,
+                                //       ),
+                                //     ),
+                                //   ),
+                              ],
                             ),
                             const SizedBox(height: 6),
 
@@ -110,13 +143,13 @@ class PeriodSummaryCard extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(999),
                                     child: Container(
                                       height: 20,
-                                      color: CustomColors.verdeClaro,
+                                      color: statusColor.withAlpha(26),
                                       child: FractionallySizedBox(
                                         alignment: Alignment.centerLeft,
-                                        widthFactor: percentage.clamp(0.0, 1.0),
+                                        widthFactor: barProgress,
                                         child: Container(
                                           decoration: BoxDecoration(
-                                            color: CustomColors.verde,
+                                            color: statusColor,
                                             borderRadius: BorderRadius.circular(
                                               999,
                                             ),
@@ -173,11 +206,29 @@ class PeriodSummaryCard extends StatelessWidget {
     );
   }
 
-  void _onPressed(BuildContext context) {
-    Navigator.of(context).pushNamed(
+  Color _statusColor(PeriodSpendingStatus? status) {
+    switch (status) {
+      case PeriodSpendingStatus.exceeded:
+        return const Color(0xFFB3261E);
+      case PeriodSpendingStatus.danger:
+        return const Color(0xFFB95F00);
+      case PeriodSpendingStatus.warning:
+        return const Color(0xFFE9A100);
+      case PeriodSpendingStatus.onTrack:
+      default:
+        return CustomColors.verde;
+    }
+  }
+
+  void _onPressed(BuildContext context) async {
+    await Navigator.of(context).pushNamed(
       AppRoutes.period.route,
       arguments: PeriodArguments(id: summary.id),
     );
+
+    if (context.mounted) {
+      context.read<HomeBloc>().add(const HomeLoad());
+    }
   }
 }
 

@@ -51,4 +51,17 @@ class TransactionRemoteRepository implements TransactionRepository {
         )
         .toList();
   }
+
+  @override
+  Future<List<TransactionModel>> listByPeriodId(String periodId) async {
+    final snap = await _col.where('periodId', isEqualTo: periodId).get();
+    return snap.docs
+        .map(
+          (d) => TransactionModel.fromMap(
+            d.data() as Map<String, dynamic>,
+            id: d.id,
+          ),
+        )
+        .toList();
+  }
 }

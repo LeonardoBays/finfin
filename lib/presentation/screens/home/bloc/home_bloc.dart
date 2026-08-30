@@ -2,13 +2,16 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../data/models/helpers/home_period_summary.dart';
+import '../../../../data/models/period_model.dart';
 import '../../../../data/models/period_summary_model.dart';
 import '../../../../data/models/transaction_model.dart';
 import '../../../../domain/controller/user_controller.dart';
 import '../../../../domain/repositories/period_summary_repository.dart';
 import '../../../../domain/repositories/transaction_repository.dart';
+import '../../../../domain/services/period_spending_analysis_service.dart';
 
 part 'home_event.dart';
 part 'home_state.dart';
@@ -38,9 +41,27 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
       final transactions = results[0] as List<TransactionModel>;
       final summaries = (results[1] as List<PeriodSummaryModel>?) ?? const [];
+      const analysisService = PeriodSpendingAnalysisService();
       final periodSummaries = summaries
-          .map(
-            (summary) => HomePeriodSummary(
+          .map((summary) {
+            final periodTransactions = transactions
+                .where((transaction) => transaction.periodId == summary.id)
+                .toList();
+            final analysis = analysisService.analyze(
+              PeriodModel(
+                id: summary.id,
+                amount: summary.amount,
+                endsAt: summary.endsAt,
+                name: summary.name,
+                periodTypeId: summary.periodTypeId,
+                startsAt: summary.startsAt,
+                updatedAt: DateTime.now(),
+                userUid: user.uid,
+              ),
+              transactions: periodTransactions,
+            );
+
+            return HomePeriodSummary(
               id: summary.id,
               name: summary.name.isNotEmpty ? summary.name : 'Período atual',
               startsAt: summary.startsAt,
@@ -51,14 +72,26 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
               progress: summary.percentage,
               daysLeft: summary.daysLeft,
               periodTypeLabel: _periodTypeLabel(summary.periodTypeId),
-            ),
-          )
+              analysis: analysis,
+            );
+          })
           .toList();
+
+      // Compute totals using `limit` as total of period
+      final totalPeriod = periodSummaries.fold<double>(0.0, (sum, s) => sum + s.limit);
+      final totalTransactions = transactions.fold<double>(0.0, (sum, t) => sum + t.amount);
+      final difference = totalPeriod - totalTransactions;
+
+      final formattedBalance =
+          NumberFormat.currency(locale: 'pt_BR', symbol: '', decimalDigits: 2)
+              .format(difference)
+              .trim();
 
       emit(
         HomeLoaded(
           transactions: transactions,
           periodSummaries: periodSummaries,
+          balance: formattedBalance,
         ),
       );
     } catch (e) {

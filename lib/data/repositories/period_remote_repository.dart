@@ -26,7 +26,32 @@ class PeriodRemoteRepository implements PeriodRepository {
 
   @override
   Future<void> delete(String id) async {
-    await _col.doc(id).delete();
+    // Delete all transactions that belong to this period first
+    final transactionsCol = firestore.collection('transactions');
+    final txSnap = await transactionsCol.where('periodId', isEqualTo: id).get();
+
+    // Firestore batches have a 500 operation limit. Commit in chunks if needed.
+    const batchLimit = 490; // leave room for the period delete operation
+    final docs = txSnap.docs;
+    for (var i = 0; i < docs.length; i += batchLimit) {
+      final batch = firestore.batch();
+      final end = (i + batchLimit) > docs.length
+          ? docs.length
+          : (i + batchLimit);
+      for (var j = i; j < end; j++) {
+        batch.delete(docs[j].reference);
+      }
+      // If this is the last chunk, also delete the period document in the same batch
+      if (end == docs.length) {
+        batch.delete(_col.doc(id));
+      }
+      await batch.commit();
+    }
+
+    // If there were no transactions, delete the period directly
+    if (docs.isEmpty) {
+      await _col.doc(id).delete();
+    }
   }
 
   @override

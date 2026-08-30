@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/custom_colors.dart';
-
 class TransactionsHeader extends StatelessWidget {
   const TransactionsHeader({super.key, this.onViewAll, required this.label});
 
@@ -20,13 +18,6 @@ class TransactionsHeader extends StatelessWidget {
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          TextButton(
-            onPressed: onViewAll,
-            child: const Text(
-              'Ver todos',
-              style: TextStyle(color: CustomColors.azul, fontWeight: .bold),
-            ),
           ),
         ],
       ),

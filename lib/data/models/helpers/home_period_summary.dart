@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../../../domain/models/period_spending_analysis.dart';
+
 class HomePeriodSummary extends Equatable {
   const HomePeriodSummary({
     required this.id,
@@ -12,6 +14,7 @@ class HomePeriodSummary extends Equatable {
     required this.progress,
     required this.daysLeft,
     required this.periodTypeLabel,
+    this.analysis,
   });
 
   final String id;
@@ -24,6 +27,7 @@ class HomePeriodSummary extends Equatable {
   final double progress;
   final int daysLeft;
   final String periodTypeLabel;
+  final PeriodSpendingAnalysis? analysis;
 
   @override
   List<Object?> get props => [
@@ -37,5 +41,6 @@ class HomePeriodSummary extends Equatable {
     progress,
     daysLeft,
     periodTypeLabel,
+    analysis,
   ];
 }

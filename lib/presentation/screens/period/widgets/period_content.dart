@@ -27,21 +27,10 @@ class PeriodContent extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               actions: [
-                DeleteButton(
-                  enable: hasId,
-                  isVisible: hasId,
-                  onPressed: () {
-                    final id = state.form!.id;
-                    if (id.isEmpty) return;
-                    context.read<PeriodBloc>().add(PeriodDeleted(id));
-                  },
-                ),
                 if (hasId)
-                  IconButton(
-                    icon: const Icon(
-                      Icons.delete_outline,
-                      color: Color(0xFF2051C9),
-                    ),
+                  DeleteButton(
+                    enable: hasId,
+                    isVisible: hasId,
                     onPressed: () {
                       final id = state.form!.id;
                       if (id.isEmpty) return;

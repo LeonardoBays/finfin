@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -18,28 +19,35 @@ Future<Injector> _initializeApp() async {
 
   final injector = await InjectorImpl.initializeDependencies();
 
-  // final user = FirebaseAuth.instance.currentUser;
-  // print('user: ${user?.uid}');
+  final user = FirebaseAuth.instance.currentUser;
+
+  if (user == null) {
+    const email = "superemail@gmail.com";
+    const password = '123456';
+
+    await _register(email: email, password: password);
+    await _signIn(email: email, password: password);
+  }
 
   return injector;
 }
 
-// Future<UserCredential> _register({
-//   required String email,
-//   required String password,
-// }) async {
-//   return await FirebaseAuth.instance.createUserWithEmailAndPassword(
-//     email: email,
-//     password: password,
-//   );
-// }
-//
-// Future<UserCredential> _signIn({
-//   required String email,
-//   required String password,
-// }) async {
-//   return await FirebaseAuth.instance.signInWithEmailAndPassword(
-//     email: email,
-//     password: password,
-//   );
-// }
+Future<UserCredential> _register({
+  required String email,
+  required String password,
+}) async {
+  return await FirebaseAuth.instance.createUserWithEmailAndPassword(
+    email: email,
+    password: password,
+  );
+}
+
+Future<UserCredential> _signIn({
+  required String email,
+  required String password,
+}) async {
+  return await FirebaseAuth.instance.signInWithEmailAndPassword(
+    email: email,
+    password: password,
+  );
+}
